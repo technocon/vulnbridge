@@ -1,0 +1,22 @@
+{
+  "name": "vulnbridge",
+  "private": true,
+  "version": "0.1.0",
+  "description": "VulnBridge — Vulnerability remediation bridge from scanner to fix",
+  "workspaces": [
+    "packages/shared",
+    "packages/backend",
+    "packages/frontend",
+    "packages/scanner-core"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint packages/*/src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
