@@ -1,0 +1,16 @@
+FROM node:20-slim
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY packages/backend/package*.json ./packages/backend/
+COPY packages/frontend/package*.json ./packages/frontend/
+COPY packages/shared/package*.json ./packages/shared/
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 3001 5173
+
+CMD ["npm", "run", "dev", "--workspaces", "--if-present"]
