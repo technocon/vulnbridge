@@ -10,7 +10,8 @@ VulnBridge is built as a TypeScript monorepo using npm workspaces.
 
 - **`packages/backend`**: Fastify-based Node.js API. Handles vulnerability ingestion, scoring, and patch generation.
 - **`packages/frontend`**: React + Vite application. Provides a unified backlog view and configuration interface.
-- **`packages/shared`**: Shared TypeScript types and utilities used by both backend and frontend.
+- **`packages/shared`**: Shared TypeScript types and utilities used by all packages.
+- **`packages/scanner-core`**: Scanner ingestion engine and adapter interfaces.
 
 ### Stack
 
@@ -38,13 +39,11 @@ npm install
 ### Development
 
 Start the backend:
-
 ```bash
 npm run dev -w @vulnbridge/backend
 ```
 
 Start the frontend:
-
 ```bash
 npm run dev -w @vulnbridge/frontend
 ```
