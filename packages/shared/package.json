@@ -11,5 +11,8 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "types": "./dist/index.d.ts"
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
 }
