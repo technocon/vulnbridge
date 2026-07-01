@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users               User[]
+  repositories        Repository[]
+  scannerIntegrations ScannerIntegration[]
+  auditLogEntries     AuditLogEntry[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Repository {
+  id        String   @id @default(uuid())
+  name      String
+  url       String
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  findings        Finding[]
+  autonomyConfigs AutonomyConfig[]
+  fixPRs          FixPR[]
+}
+
+model ScannerIntegration {
+  id        String   @id @default(uuid())
+  source    String   // Snyk, Dependabot, Wiz, Inspector, Mock
+  config    String   // JSON string, encrypted fields should be handled at the app layer or via Prisma middleware
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Finding {
+  id           String   @id @default(uuid())
+  externalId   String?
+  source       String
+  cve          String?
+  title        String?
+  description  String?
+  severity     String   // Low, Medium, High, Critical
+  status       String   // Open, InReview, Fixing, Fixed, Ignored
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  tenantId     String   // Enforce tenant isolation at the data layer
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  fixPRs         FixPR[]
+  riskNarratives RiskNarrative[]
+}
+
+model AutonomyConfig {
+  id           String   @id @default(uuid())
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  tier         String   // T0, T1, T2, T3
+  enabled      Boolean  @default(true)
+  autoApprove  Boolean  @default(false)
+  scope        String?  // Optional scope (e.g. path pattern)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AuditLogEntry {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userId    String?
+  action    String
+  metadata  String   // JSON string
+  timestamp DateTime @default(now())
+}
+
+model FixPR {
+  id           String   @id @default(uuid())
+  findingId    String
+  finding      Finding    @relation(fields: [findingId], references: [id], onDelete: Cascade)
+  repositoryId String
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  prNumber     Int
+  url          String
+  status       String   // Open, Merged, Closed
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model RiskNarrative {
+  id          String   @id @default(uuid())
+  findingId   String
+  finding     Finding  @relation(fields: [findingId], references: [id], onDelete: Cascade)
+  content     String
+  aiGenerated Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
